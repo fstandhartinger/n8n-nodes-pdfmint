@@ -24,6 +24,31 @@ async function baseUrl(context: IExecuteFunctions | ILoadOptionsFunctions): Prom
 }
 
 /**
+ * The API's hints are deliberately client-neutral, because curl users read them
+ * too. These add the n8n-shaped half — what to click, which field to change —
+ * for the failures an n8n operator actually hits.
+ */
+const N8N_ADVICE: Record<string, string> = {
+	missing_api_key: 'In n8n, open the node and pick a PDFMint credential in the Credential dropdown.',
+	invalid_api_key: 'Open the credential in n8n and paste the key from your PDFMint dashboard again.',
+	quota_exceeded: 'Add a Wait or an IF node if you need to spread the work, or upgrade the plan.',
+	missing_content: 'Set the Source field and put your content in the field below it.',
+	ambiguous_content: 'Set Source to the one you meant; the node only sends that field.',
+	invalid_data: 'Use an expression that yields an object, for example {{ $json }}.',
+	unresolved_placeholders: 'Check the field names in Data against the {{placeholders}} in your template, or turn Strict Placeholders off.',
+	template_not_found: 'Reopen the Template dropdown to reload the list from your account.',
+	url_unreachable: 'If the page needs a login, fetch it with an HTTP Request node first and pass the HTML into this node instead.',
+	url_http_error: 'If the page needs a login, fetch it with an HTTP Request node first and pass the HTML into this node instead.',
+	private_address_blocked: 'A URL on your own network is not reachable from PDFMint. Fetch it with an HTTP Request node and pass the HTML in.',
+	render_timeout: 'Raise Options > Timeout, or set Options > Wait For to a fixed number of milliseconds.',
+	wait_for_timeout: 'Check Options > Wait For — the selector never appeared.',
+	renderer_busy: 'Turn on Settings > Retry On Fail so this item retries by itself.',
+	request_too_large: 'Inline base64 images are the usual cause. Host them and reference them by URL.',
+	html_too_large: 'Inline base64 images are the usual cause. Host them and reference them by URL.',
+	invalid_json: 'Switch the field to Expression mode and pass an object rather than building a JSON string by hand.',
+};
+
+/**
  * The API answers every failure with
  *   { error: { code, message, hint?, docs?, request_id? } }
  * so the node can show the operator a sentence they can act on instead of
@@ -53,6 +78,8 @@ function describeError(context: IExecuteFunctions | ILoadOptionsFunctions, error
 	if (apiError.message) {
 		const parts: string[] = [];
 		if (apiError.hint) parts.push(String(apiError.hint));
+		const advice = N8N_ADVICE[String(apiError.code ?? '')];
+		if (advice) parts.push(advice);
 		if (apiError.docs) parts.push(`Docs: ${String(apiError.docs)}`);
 		if (apiError.request_id) parts.push(`Request ID: ${String(apiError.request_id)}`);
 		throw new NodeApiError(context.getNode(), error, {
