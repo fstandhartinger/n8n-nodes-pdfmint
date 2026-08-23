@@ -34,6 +34,8 @@
     "dev": "n8n-node dev",
     "lint": "n8n-node lint",
     "lintfix": "n8n-node lint --fix",
+    "pretest": "npm run build",
+    "test": "node --test test/*.test.js",
     "release": "n8n-node release",
     "prerelease": "n8n-node prerelease"
   },

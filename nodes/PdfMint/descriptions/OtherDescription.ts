@@ -1,5 +1,41 @@
 import type { INodeProperties } from 'n8n-workflow';
 
+export const imageFormatField: INodeProperties = {
+	displayName: 'Format',
+	name: 'imageType',
+	type: 'options',
+	default: 'png',
+	description: 'Image file format',
+	displayOptions: { show: { operation: ['image'] } },
+	options: [
+		{ name: 'PNG', value: 'png' },
+		{ name: 'JPEG', value: 'jpeg' },
+	],
+};
+
+/**
+ * One field per format, so the file name a new node starts with already ends in
+ * the extension the operator picked. n8n shows whichever one matches Format.
+ */
+export const imageFileNameFields: INodeProperties[] = [
+	{
+		displayName: 'File Name',
+		name: 'fileName',
+		type: 'string',
+		default: 'image.png',
+		description: 'Name given to the generated image',
+		displayOptions: { show: { operation: ['image'], imageType: ['png'] } },
+	},
+	{
+		displayName: 'File Name',
+		name: 'fileName',
+		type: 'string',
+		default: 'image.jpeg',
+		description: 'Name given to the generated image',
+		displayOptions: { show: { operation: ['image'], imageType: ['jpeg'] } },
+	},
+];
+
 export const imageOptions: INodeProperties = {
 	displayName: 'Options',
 	name: 'imageOptions',
@@ -8,24 +44,6 @@ export const imageOptions: INodeProperties = {
 	default: {},
 	displayOptions: { show: { operation: ['image'] } },
 	options: [
-		{
-			displayName: 'File Name',
-			name: 'fileName',
-			type: 'string',
-			default: 'image.png',
-			description: 'Name given to the generated image',
-		},
-		{
-			displayName: 'Format',
-			name: 'type',
-			type: 'options',
-			default: 'png',
-			description: 'Image file format',
-			options: [
-				{ name: 'PNG', value: 'png' },
-				{ name: 'JPEG', value: 'jpeg' },
-			],
-		},
 		{
 			displayName: 'Full Page',
 			name: 'fullPage',

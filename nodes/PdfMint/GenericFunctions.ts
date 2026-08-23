@@ -9,6 +9,8 @@ import type {
 } from 'n8n-workflow';
 import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
+import { DEFAULT_MARGIN } from './constants';
+
 const DEFAULT_BASE_URL = 'https://pdfmint-b9tt.onrender.com';
 
 export interface PdfMintResponse {
@@ -50,56 +52,199 @@ const N8N_ADVICE: Record<string, string> = {
 };
 
 /**
+ * The HTTP helper hands the node a NodeApiError whose payload is whatever the
+ * server sent — and for a binary request that payload is a Buffer, which the
+ * error panel renders as a few hundred decimal bytes. These pull the real
+ * envelope back out, whatever wrapper it arrived in.
+ */
+function bufferFrom(value: unknown): Buffer | undefined {
+	if (Buffer.isBuffer(value)) return value;
+	if (value instanceof Uint8Array) return Buffer.from(value);
+	if (value instanceof ArrayBuffer) return Buffer.from(new Uint8Array(value));
+	// A Buffer that has been through JSON, as it is once n8n saves an execution.
+	const serialised = value as { type?: string; data?: unknown };
+	if (serialised?.type === 'Buffer' && Array.isArray(serialised.data)) {
+		return Buffer.from(serialised.data as number[]);
+	}
+	return undefined;
+}
+
+interface DecodedBody {
+	json?: IDataObject;
+	text?: string;
+}
+
+function decodeBody(value: unknown): DecodedBody | undefined {
+	if (value === undefined || value === null || value === '') return undefined;
+
+	const buffer = bufferFrom(value);
+	const text = buffer ? buffer.toString('utf8') : typeof value === 'string' ? value : undefined;
+
+	if (text !== undefined) {
+		try {
+			const parsed = JSON.parse(text) as unknown;
+			if (parsed && typeof parsed === 'object') return { json: parsed as IDataObject, text };
+		} catch {
+			// Not JSON — a proxy's HTML page, say. The text is still readable.
+		}
+		return { text };
+	}
+	if (typeof value === 'object') return { json: value as IDataObject };
+	return undefined;
+}
+
+/** Every place an error body can hide, from the outermost wrapper inwards. */
+function errorBody(error: unknown): DecodedBody | undefined {
+	const err = (error ?? {}) as JsonObject & {
+		cause?: JsonObject & { response?: JsonObject };
+		context?: JsonObject;
+		errorResponse?: JsonObject;
+	};
+	const response = (err.response ?? {}) as JsonObject;
+	const causeResponse = (err.cause?.response ?? {}) as JsonObject;
+	const candidates = [
+		response.body,
+		response.data,
+		err.body,
+		causeResponse.body,
+		causeResponse.data,
+		err.context?.data,
+		err.errorResponse,
+	];
+
+	let fallback: DecodedBody | undefined;
+	for (const candidate of candidates) {
+		const decoded = decodeBody(candidate);
+		if (decoded?.json?.error) return decoded;
+		if (decoded && !fallback) fallback = decoded;
+	}
+	return fallback;
+}
+
+/** The status code, wherever the wrapper happened to keep it. */
+function statusCodeOf(error: unknown): string {
+	const err = (error ?? {}) as JsonObject & {
+		httpCode?: string;
+		cause?: JsonObject & { response?: JsonObject };
+	};
+	const response = (err.response ?? {}) as JsonObject;
+	const causeResponse = (err.cause?.response ?? {}) as JsonObject;
+	const code =
+		err.httpCode ?? response.status ?? response.statusCode ?? causeResponse.status ?? err.statusCode;
+	return code === undefined || code === null ? '' : String(code);
+}
+
+/** The parsed API error the node attaches to everything it throws. */
+const API_ERROR_PROPERTY = 'pdfMintApiError';
+
+/**
+ * Reads the API's own error fields back off a thrown error, so Continue On Fail
+ * can emit something an IF node can branch on rather than a sentence.
+ */
+function pdfMintApiError(error: unknown): IDataObject | undefined {
+	const attached = (error as { [API_ERROR_PROPERTY]?: IDataObject })?.[API_ERROR_PROPERTY];
+	if (attached) return attached;
+
+	const apiError = errorBody(error)?.json?.error as IDataObject | undefined;
+	if (!apiError?.message) return undefined;
+	return compactApiError(apiError, statusCodeOf(error));
+}
+
+function compactApiError(apiError: IDataObject, httpCode: string): IDataObject {
+	const info: IDataObject = { message: String(apiError.message) };
+	if (apiError.code) info.code = String(apiError.code);
+	if (apiError.hint) info.hint = String(apiError.hint);
+	if (apiError.docs) info.docs = String(apiError.docs);
+	if (apiError.request_id) info.request_id = String(apiError.request_id);
+	if (apiError.details !== undefined) info.details = apiError.details;
+	if (httpCode) info.httpCode = httpCode;
+	return info;
+}
+
+/**
+ * The item Continue On Fail emits. `error` is an object so a workflow can test
+ * `$json.error.code` in an IF node; `errorMessage` keeps the plain sentence for
+ * anything that only wants to print it.
+ */
+export function errorItemJson(error: unknown): IDataObject {
+	const info = pdfMintApiError(error);
+	const thrown = (error ?? {}) as { message?: string; description?: string };
+	const message = String(info?.message ?? thrown.message ?? 'Unknown error');
+	const details: IDataObject = { ...(info ?? {}), message };
+	// A node-side error has no API hint, but its description is one.
+	if (!info && thrown.description) details.hint = thrown.description;
+
+	const json: IDataObject = { error: details, errorMessage: message };
+	if (thrown.description) json.errorDescription = thrown.description;
+	return json;
+}
+
+/**
+ * NodeApiError hands back its second argument untouched when that argument is
+ * already a NodeApiError, so an error can only be given a better message by
+ * building it from a plain object. Annotating in place is the honest way to add
+ * the item index to one the node already built.
+ */
+export function withItemIndex<T>(error: T, itemIndex: number): T {
+	const context = (error as { context?: IDataObject })?.context;
+	if (context && typeof context === 'object' && context.itemIndex === undefined) {
+		context.itemIndex = itemIndex;
+	}
+	return error;
+}
+
+/**
  * The API answers every failure with
  *   { error: { code, message, hint?, docs?, request_id? } }
  * so the node can show the operator a sentence they can act on instead of
  * "Request failed with status code 400".
  */
 function describeError(context: IExecuteFunctions | ILoadOptionsFunctions, error: JsonObject): never {
-	const response = (error.response ?? {}) as JsonObject;
-	const payload = (response.body ?? error.body ?? {}) as JsonObject;
-	let apiError = (payload.error ?? {}) as JsonObject;
-
-	// A binary request returns the error body as a Buffer, so decode it first.
-	if (!apiError.message && Buffer.isBuffer(payload)) {
-		try {
-			apiError = (JSON.parse((payload as unknown as Buffer).toString('utf8')).error ?? {}) as JsonObject;
-		} catch {
-			apiError = {};
-		}
-	}
-	if (!apiError.message && Buffer.isBuffer(response.body)) {
-		try {
-			apiError = (JSON.parse((response.body as unknown as Buffer).toString('utf8')).error ?? {}) as JsonObject;
-		} catch {
-			apiError = {};
-		}
-	}
+	const decoded = errorBody(error);
+	const apiError = (decoded?.json?.error ?? {}) as IDataObject;
+	const httpCode = statusCodeOf(error);
 
 	if (apiError.message) {
+		const info = compactApiError(apiError, httpCode);
 		const parts: string[] = [];
-		if (apiError.hint) parts.push(String(apiError.hint));
-		const advice = N8N_ADVICE[String(apiError.code ?? '')];
+		if (info.hint) parts.push(String(info.hint));
+		const advice = N8N_ADVICE[String(info.code ?? '')];
 		if (advice) parts.push(advice);
-		if (apiError.docs) parts.push(`Docs: ${String(apiError.docs)}`);
-		if (apiError.request_id) parts.push(`Request ID: ${String(apiError.request_id)}`);
-		throw new NodeApiError(context.getNode(), error, {
-			message: String(apiError.message),
+		if (info.docs) parts.push(`Docs: ${String(info.docs)}`);
+		if (info.request_id) parts.push(`Request ID: ${String(info.request_id)}`);
+
+		// The plain object is what stops NodeApiError from short-circuiting.
+		const failure = new NodeApiError(context.getNode(), decoded?.json as JsonObject, {
+			message: String(info.message),
 			description: parts.join(' '),
-			httpCode: String(response.statusCode ?? error.statusCode ?? ''),
+			httpCode: httpCode || undefined,
 		});
+		// The decoded envelope, not the Buffer the transport happened to use.
+		failure.context.data = decoded?.json as IDataObject;
+		Object.assign(failure, { [API_ERROR_PROPERTY]: info });
+		throw failure;
 	}
 
 	const code = String((error as JsonObject).code ?? '');
 	if (['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN', 'ETIMEDOUT'].includes(code)) {
-		throw new NodeApiError(context.getNode(), error, {
-			message: 'Could not reach the PDFMint API',
-			description:
-				'Check that this n8n instance has outbound internet access, and that the Base URL in the credential is correct.',
-		});
+		throw new NodeApiError(
+			context.getNode(),
+			{ code, message: String((error as JsonObject).message ?? code) },
+			{
+				message: 'Could not reach the PDFMint API',
+				description:
+					'Check that this n8n instance has outbound internet access, and that the Base URL in the credential is correct.',
+			},
+		);
 	}
 
-	throw new NodeApiError(context.getNode(), error);
+	// Nothing recognisable in the body. Keep whatever n8n already worked out,
+	// but never leave a Buffer behind for the panel to print as decimal bytes.
+	const failure = new NodeApiError(context.getNode(), error);
+	if (decoded?.text !== undefined) {
+		failure.context.data = decoded.text.slice(0, 2000);
+	}
+	throw failure;
 }
 
 export async function pdfMintRequest(
@@ -152,7 +297,10 @@ export function buildMargin(options: IDataObject): IDataObject | string | undefi
 		if (options[key] !== undefined && options[key] !== '') perSide[side] = options[key];
 	}
 	if (Object.keys(perSide).length) {
-		const all = (options.margin as string) || '0';
+		// An unset Margin means the operator never touched it, so the edges they
+		// did not override keep the same default the Margin field shows.
+		const all =
+			options.margin === undefined || options.margin === '' ? DEFAULT_MARGIN : String(options.margin);
 		return { top: all, right: all, bottom: all, left: all, ...perSide };
 	}
 	if (options.margin !== undefined && options.margin !== '') return options.margin as string;

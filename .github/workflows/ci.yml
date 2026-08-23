@@ -20,6 +20,7 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+      - run: node --test test/*.test.js
 
       - name: The package must have zero runtime dependencies
         run: |

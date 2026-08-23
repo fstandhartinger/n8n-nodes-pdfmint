@@ -110,8 +110,8 @@ Everything below lives under **Options** and is optional.
 |---|---|---|
 | Page Format | `A4` | A3, A4, A5, Letter, Legal, Tabloid, Ledger |
 | Orientation | Portrait | |
-| Margin | `0` | A CSS length such as `20mm`, `0.5in`, `24px`, applied to all four sides |
-| Margin Top / Right / Bottom / Left | — | Override a single edge |
+| Margin | `12mm` | A CSS length such as `20mm`, `0.5in`, `24px`, applied to all four sides |
+| Margin Top / Right / Bottom / Left | — | Override a single edge; the other three keep the Margin value |
 | Page Numbers | off | Adds a centred footer and reserves the bottom margin so it is never clipped |
 | Page Number Format | `Page {page} of {total}` | |
 | Header HTML / Footer HTML | — | Repeated on every page; the matching margin is reserved automatically |
@@ -181,6 +181,21 @@ puts the sentence in the error title and the hint plus a docs link in the descri
 the red box in n8n tells you what to change rather than `Request failed with status 400`.
 
 Turn on **Settings → Continue On Fail** to route bad items down the error branch instead.
+The failed item carries the API's own fields, so an IF node can branch on `$json.error.code`:
+
+```json
+{
+  "error": {
+    "code": "invalid_api_key",
+    "message": "This API key is not valid, or it has been revoked.",
+    "hint": "…",
+    "docs": "https://pdfmint-b9tt.onrender.com/docs#authentication",
+    "request_id": "51e5390e4107f566",
+    "httpCode": "401"
+  },
+  "errorMessage": "This API key is not valid, or it has been revoked."
+}
+```
 
 `rate_limited` (429), `renderer_busy` (503) and the 502s are all worth retrying — turn on
 **Settings → Retry On Fail** and n8n handles them for you.

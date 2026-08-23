@@ -1,5 +1,28 @@
 import type { INodeProperties } from 'n8n-workflow';
 
+import { DEFAULT_MARGIN } from '../constants';
+
+/**
+ * A node dragged onto the canvas has to render on the first Execute, with no
+ * decisions to make. Kept short so it reads as a starting point rather than an
+ * example to study, and free of {{ }} because the API substitutes those.
+ */
+const STARTER_HTML = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font: 16px/1.6 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #1f2933; }
+      h1 { font-size: 28px; margin: 0 0 12px; }
+      p { margin: 0; color: #52606d; }
+    </style>
+  </head>
+  <body>
+    <h1>Hello from PDFMint</h1>
+    <p>Replace this HTML with your own, or drop in an expression to use data from an earlier node.</p>
+  </body>
+</html>`;
+
 const showFor = (operations: string[], extra: Record<string, unknown> = {}) => ({
 	show: { operation: operations, ...extra },
 });
@@ -42,7 +65,7 @@ export const contentFields: INodeProperties[] = [
 		name: 'html',
 		type: 'string',
 		typeOptions: { rows: 8 },
-		default: '',
+		default: STARTER_HTML,
 		required: true,
 		placeholder: '<h1>Invoice {{ $json.number }}</h1>',
 		description: 'The HTML to render. A full document or a fragment both work. Reference workflow data with an expression, for example {{ $JSON.html }}.',
@@ -176,7 +199,7 @@ export const pdfOptions: INodeProperties = {
 			displayName: 'Margin',
 			name: 'margin',
 			type: 'string',
-			default: '12mm',
+			default: DEFAULT_MARGIN,
 			placeholder: '20mm',
 			description: 'Margin on all four sides, as a CSS length such as 20mm, 0.5in or 24px. Set it to 0 for a full-bleed design whose own CSS controls the spacing.',
 		},

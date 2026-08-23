@@ -3,6 +3,23 @@
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Utility", "Development"],
+	"alias": [
+		"PDF",
+		"Generate PDF",
+		"HTML to PDF",
+		"Markdown to PDF",
+		"URL to PDF",
+		"Web Page to PDF",
+		"Merge PDF",
+		"Screenshot",
+		"HTML to Image",
+		"Invoice",
+		"Receipt",
+		"Report",
+		"Document",
+		"Watermark",
+		"PDFMint"
+	],
 	"resources": {
 		"credentialDocumentation": [
 			{ "url": "https://pdfmint-b9tt.onrender.com/docs#authentication" }
