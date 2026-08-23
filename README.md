@@ -112,6 +112,10 @@ Everything below lives under **Options** and is optional.
 | Wait For | — | Milliseconds, a CSS selector, or `networkidle` — for charts and late web fonts |
 | Timeout | `30000` ms | Up to 120000 |
 | Password | — | AES-256 encryption, included on every plan |
+| Watermark Text | — | Stamped diagonally across every page, sized to fit |
+| Watermark Opacity / Colour | `0.18` / `#9AA3B2` | |
+| Return Debug Info | off | Also returns the HTML that was actually rendered and any page JS errors |
+| Webhook URL (Async) | — | Render in the background and POST the result to this URL instead of waiting |
 | Title / Author | — | Written into the PDF metadata |
 | CSS | — | Extra CSS on top of the Markdown stylesheet |
 | Google Font | — | e.g. `Playfair Display:wght@400;700` |
@@ -136,6 +140,28 @@ joined by connecting it straight into this node. With **List of URLs**, paste on
 PDF URL per line.
 
 Merge runs once for the whole branch, not once per item.
+
+## Long documents
+
+Most documents finish in well under a second, and the synchronous path allows up
+to 120 seconds. For anything longer, set **Options → Webhook URL (Async)** to the
+Production URL of a Webhook node. The PDFMint node then returns a job ID
+immediately and PDFMint POSTs
+
+```json
+{ "job_id": "job_...", "status": "succeeded", "url": "https://…/f/…", "pages": 12, "size": 481203 }
+```
+
+to your webhook when the document is ready, retrying three times with backoff.
+Jobs are stored in the database, not in memory, so a restart cannot lose one.
+`GET /v1/jobs/{id}` reports the status either way.
+
+## When the PDF comes out wrong
+
+Turn on **Options → Return Debug Info**. The output item then also carries the
+HTML that was actually rendered — after placeholders were filled and after the
+browser parsed it — plus any JavaScript errors the page threw. That is usually
+enough to see the problem without guessing.
 
 ## Errors
 
