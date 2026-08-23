@@ -123,11 +123,30 @@ case "${1:---status}" in
       -H "Authorization: Bearer $JWT" -H 'Content-Type: application/json' -H 'X-Skip-Cache: 1' \
       -d "$(python3 -c 'import json,sys; print(json.dumps({"packageName":sys.argv[1],"packageVersion":sys.argv[2],"official":sys.argv[3]=="true","token":sys.argv[4]}))' "$PACKAGE" "$VERSION" "$OFFICIAL" "$TOKEN")")
     CODE=$(printf '%s' "$RESP" | tail -1)
-    printf '%s' "$RESP" | sed '$d' | python3 -m json.tool 2>/dev/null || printf '%s\n' "$RESP" | sed '$d'
+    BODY=$(printf '%s' "$RESP" | sed '$d')
+    printf '%s' "$BODY" | python3 -m json.tool 2>/dev/null || printf '%s\n' "$BODY"
     echo "HTTP $CODE"
+
+    # The endpoint answers 200 even when it refuses the token, so the status code
+    # alone would report a failure as a success. The body is what decides.
+    OK=$(printf '%s' "$BODY" | python3 -c '
+import json, sys
+try:
+    print("yes" if json.load(sys.stdin).get("success") is True else "no")
+except Exception:
+    print("no")
+')
     echo
     echo "Verification record now:"
     show_record
+    if [ "$OK" != "yes" ]; then
+      echo
+      echo "SUBMISSION DID NOT GO THROUGH — the token was refused. Ask for a fresh one:"
+      echo "  $0 --request"
+      exit 1
+    fi
+    echo
+    echo "SUBMITTED."
     ;;
 
   *) die "unknown option: $1  (try --status, --request, --confirm <TOKEN>)" ;;
