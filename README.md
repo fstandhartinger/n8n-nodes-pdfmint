@@ -14,23 +14,22 @@ The free plan is 300 documents a month and needs no card.
 
 ## Install
 
-> **Not on npm yet.** The package is built, linted, CI-green and running in a real
-> n8n instance, but publication is waiting on an npm access token — and n8n requires
-> community nodes submitted for verification to be published from GitHub Actions with
-> a provenance statement. Until that lands, **n8n Cloud cannot install it** (Cloud only
-> installs from npm) and Settings → Community Nodes → Install will not find it.
+**n8n Cloud and self-hosted (n8n 1.x and later)**
 
-**Self-hosted, from the release build** — this is the same tarball that will go to npm:
+Settings → Community Nodes → Install → `n8n-nodes-pdfmint`
+
+**Self-hosted, from the CLI**
 
 ```bash
 cd ~/.n8n/nodes
-npm install https://github.com/fstandhartinger/n8n-nodes-pdfmint/releases/download/snapshot/n8n-nodes-pdfmint-0.1.0.tgz
+npm install n8n-nodes-pdfmint
 ```
 
 Then restart n8n.
 
-**Once it is on npm**, the usual routes work: Settings → Community Nodes → Install →
-`n8n-nodes-pdfmint`, or `npm install n8n-nodes-pdfmint` in `~/.n8n/nodes`.
+The package is published from
+[this repository's GitHub Actions workflow](.github/workflows/publish.yml) with an npm
+provenance attestation, so `npm audit signatures` can verify which commit built it.
 
 ## Credential
 
