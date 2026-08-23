@@ -174,6 +174,7 @@ function collectPdfBody(this: IExecuteFunctions, itemIndex: number): IDataObject
 	if (options.password) body.password = options.password;
 	if (options.strict) body.strict = options.strict;
 	if (options.debug) body.debug = options.debug;
+	if (options.webhookUrl) body.webhookUrl = options.webhookUrl;
 	if (options.watermarkText) {
 		body.watermark = {
 			text: options.watermarkText,
@@ -202,9 +203,12 @@ async function generatePdf(this: IExecuteFunctions, itemIndex: number): Promise<
 	body.output = output;
 	if (output === 'url' && options.expiresInMinutes) body.expiresInMinutes = options.expiresInMinutes;
 
-	const response = await pdfMintRequest.call(this, 'POST', '/v1/pdf', body, output === 'binary');
+	// An async request never returns a file, so ask for JSON regardless of the
+	// chosen output mode and hand the job back to the workflow.
+	const isAsync = Boolean(body.webhookUrl);
+	const response = await pdfMintRequest.call(this, 'POST', '/v1/pdf', body, !isAsync && output === 'binary');
 
-	if (output !== 'binary') {
+	if (isAsync || output !== 'binary') {
 		return { json: response.body as IDataObject, pairedItem: { item: itemIndex } };
 	}
 	return buildBinaryItem.call(

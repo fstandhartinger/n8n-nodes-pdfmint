@@ -384,5 +384,13 @@ export const pdfOptions: INodeProperties = {
 			placeholder: 'DRAFT',
 			description: 'Stamp this text diagonally across every page, sized automatically to fit',
 		},
+		{
+			displayName: 'Webhook URL (Async)',
+			name: 'webhookUrl',
+			type: 'string',
+			default: '',
+			placeholder: 'https://your-n8n.example.com/webhook/pdf-ready',
+			description: 'Set this to render in the background instead of waiting. The node returns a job ID straight away and PDFMint POSTs the finished document to this URL, retrying up to three times. Use the Production URL of a Webhook node. Only worth it for documents that take longer than the timeout.',
+		},
 	],
 };
