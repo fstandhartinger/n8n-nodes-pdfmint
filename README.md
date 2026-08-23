@@ -14,7 +14,14 @@ The free plan is 300 documents a month and needs no card.
 
 ## Install
 
-**n8n Cloud and self-hosted (n8n 1.x and later)**
+> **Self-hosted n8n only, for now.** n8n's rule is that *"unverified community nodes aren't
+> available on n8n cloud and require self-hosting n8n."* This package is
+> [submitted for verification](https://creators.n8n.io/nodes) and is in n8n's automated review,
+> so **n8n Cloud cannot install it yet**. On n8n Cloud, call the HTTP API directly with an
+> HTTP Request node pointed at `POST /v1/pdf` — it returns the PDF bytes, which is the same
+> thing this node hands you.
+
+**Self-hosted, from the n8n UI**
 
 Settings → Community Nodes → Install → `n8n-nodes-pdfmint`
 
