@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Lint, build, and check the package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+
+      - name: The package must have zero runtime dependencies
+        run: |
+          deps=$(node -p "JSON.stringify(require('./package.json').dependencies || {})")
+          echo "dependencies: $deps"
+          test "$deps" = "{}" || { echo "::error::verified community nodes may not have runtime dependencies"; exit 1; }
+
+      - name: The packed tarball must contain the node, the credential and the icons
+        run: |
+          npm pack
+          tar tzf n8n-nodes-pdfmint-*.tgz | sort | tee /tmp/files
+          for f in \
+            package/dist/nodes/PdfMint/PdfMint.node.js \
+            package/dist/nodes/PdfMint/PdfMint.node.json \
+            package/dist/nodes/PdfMint/pdfmint.svg \
+            package/dist/credentials/PdfMintApi.credentials.js \
+            package/README.md \
+            package/LICENSE.md ; do
+            grep -qx "$f" /tmp/files || { echo "::error::missing $f from the published package"; exit 1; }
+          done
+
+      - name: The node must load and describe itself
+        run: |
+          node -e "
+            const { PdfMint } = require('./dist/nodes/PdfMint/PdfMint.node.js');
+            const d = new PdfMint().description;
+            if (d.name !== 'pdfMint') throw new Error('unexpected node name: ' + d.name);
+            if (d.usableAsTool !== true) throw new Error('the node must be usable as an AI Agent tool');
+            const ops = d.properties.find((p) => p.name === 'operation').options.map((o) => o.value);
+            for (const op of ['pdf', 'image', 'merge', 'usage']) {
+              if (!ops.includes(op)) throw new Error('missing operation: ' + op);
+            }
+            console.log('node ok:', d.displayName, '|', ops.join(', '));
+          "
