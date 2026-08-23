@@ -1,0 +1,14 @@
+{
+	"node": "n8n-nodes-pdfmint.pdfMint",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Utility", "Development"],
+	"resources": {
+		"credentialDocumentation": [
+			{ "url": "https://pdfmint-b9tt.onrender.com/docs#authentication" }
+		],
+		"primaryDocumentation": [
+			{ "url": "https://pdfmint-b9tt.onrender.com/docs" }
+		]
+	}
+}

@@ -1,0 +1,53 @@
+import type {
+	IAuthenticateGeneric,
+	ICredentialTestRequest,
+	ICredentialType,
+	INodeProperties,
+} from 'n8n-workflow';
+
+export class PdfMintApi implements ICredentialType {
+	name = 'pdfMintApi';
+
+	icon = { light: 'file:pdfmint.svg', dark: 'file:pdfmint.dark.svg' } as const;
+
+	displayName = 'PDFMint API';
+
+	documentationUrl = 'https://pdfmint-b9tt.onrender.com/docs#authentication';
+
+	properties: INodeProperties[] = [
+		{
+			displayName: 'API Key',
+			name: 'apiKey',
+			type: 'string',
+			typeOptions: { password: true },
+			default: '',
+			required: true,
+			placeholder: 'pm_live_...',
+			description:
+				'Create a free account at https://pdfmint-b9tt.onrender.com/signup and copy the key shown on your dashboard. The free plan includes 100 documents per month and needs no card.',
+		},
+		{
+			displayName: 'Base URL',
+			name: 'baseUrl',
+			type: 'string',
+			default: 'https://pdfmint-b9tt.onrender.com',
+			description: 'Only change this if you run your own PDFMint instance',
+		},
+	];
+
+	authenticate: IAuthenticateGeneric = {
+		type: 'generic',
+		properties: {
+			headers: {
+				Authorization: '=Bearer {{$credentials.apiKey}}',
+			},
+		},
+	};
+
+	test: ICredentialTestRequest = {
+		request: {
+			baseURL: '={{$credentials.baseUrl}}',
+			url: '/v1/me',
+		},
+	};
+}
