@@ -173,6 +173,14 @@ function collectPdfBody(this: IExecuteFunctions, itemIndex: number): IDataObject
 	if (options.timeout) body.timeout = options.timeout;
 	if (options.password) body.password = options.password;
 	if (options.strict) body.strict = options.strict;
+	if (options.debug) body.debug = options.debug;
+	if (options.watermarkText) {
+		body.watermark = {
+			text: options.watermarkText,
+			opacity: options.watermarkOpacity,
+			color: options.watermarkColor,
+		};
+	}
 	if (options.css) body.css = options.css;
 	if (options.googleFonts) body.googleFonts = options.googleFonts;
 
