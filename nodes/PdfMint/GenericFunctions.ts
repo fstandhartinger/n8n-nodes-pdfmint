@@ -43,6 +43,7 @@ const N8N_ADVICE: Record<string, string> = {
 	render_timeout: 'Raise Options > Timeout, or set Options > Wait For to a fixed number of milliseconds.',
 	wait_for_timeout: 'Check Options > Wait For — the selector never appeared.',
 	renderer_busy: 'Turn on Settings > Retry On Fail so this item retries by itself.',
+	rate_limited: 'Turn on Settings > Retry On Fail, or add a Loop Over Items node with a batch interval to slow the workflow down.',
 	request_too_large: 'Inline base64 images are the usual cause. Host them and reference them by URL.',
 	html_too_large: 'Inline base64 images are the usual cause. Host them and reference them by URL.',
 	invalid_json: 'Switch the field to Expression mode and pass an object rather than building a JSON string by hand.',

@@ -176,6 +176,9 @@ the red box in n8n tells you what to change rather than `Request failed with sta
 
 Turn on **Settings → Continue On Fail** to route bad items down the error branch instead.
 
+`rate_limited` (429), `renderer_busy` (503) and the 502s are all worth retrying — turn on
+**Settings → Retry On Fail** and n8n handles them for you.
+
 ## Limits
 
 | | |
@@ -185,6 +188,7 @@ Turn on **Settings → Continue On Fail** to route bad items down the error bran
 | Max render timeout | 120 s |
 | Hosted file lifetime | up to 7 days |
 | Merge inputs | 50 per call |
+| Requests per minute, per account | 120, with a burst of 30 |
 
 Pages behind a login are not reachable — PDFMint renders on its own servers, so fetch
 those in your workflow and pass the HTML instead. Private and link-local addresses are
