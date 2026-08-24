@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-pdfmint",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Turn HTML, Markdown or a URL into a PDF and get the file back on the same node. No template editor, no template IDs, no self-hosted container.",
   "keywords": [
     "n8n-community-node-package",

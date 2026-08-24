@@ -24,7 +24,7 @@ export class PdfMintApi implements ICredentialType {
 			required: true,
 			placeholder: 'pm_live_...',
 			description:
-				'Create a free account at https://pdfmint-b9tt.onrender.com/signup and copy the key shown on your dashboard. The free plan includes 300 documents per month and needs no card.',
+				'Create a free account at https://pdfmint-b9tt.onrender.com/signup and copy the key shown on your dashboard. The free plan is 10 documents a month and needs no card; Starter is $9 a month for 5,000.',
 		},
 		{
 			displayName: 'Base URL',

@@ -6,7 +6,8 @@ No template editor. No template IDs to copy out of a web app. No second HTTP Req
 node to fetch the file. No container to self-host.
 
 [PDFMint](https://pdfmint-b9tt.onrender.com) is the API behind it.
-The free plan is 300 documents a month and needs no card.
+The free plan is 10 documents a month and needs no card — enough to wire the node up and see a
+real PDF. Anything recurring needs Starter, at $9 a month for 5,000 documents.
 
 ![The node in an n8n workflow](https://raw.githubusercontent.com/fstandhartinger/n8n-nodes-pdfmint/master/docs/node.png)
 
@@ -219,12 +220,14 @@ refused.
 
 | Plan | Price | Documents / month |
 |---|---|---|
-| Free | $0 | 300 |
+| Free | $0 | 10 |
 | Starter | $9 | 5,000 |
 | Pro | $29 | 50,000 |
 | Scale | $99 | 250,000 |
 
-Images and merges each count as one document.
+Images and merges each count as one document. The free plan is permanent and needs no card, but at
+10 documents a month it is sized for trying the node out rather than running a workflow. Checkout
+for a paid plan runs on Stripe, where a VAT ID can optionally be added to the invoice.
 
 ## Links
 

@@ -301,7 +301,7 @@ export const pdfOptions: INodeProperties = {
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
-			description: 'Encrypt the PDF with AES-256 and require this password to open it. Included on every plan, free ones too.',
+			description: 'Encrypt the PDF with AES-256 and require this password to open it. Included on every plan.',
 		},
 		{
 			displayName: 'Placeholder Data',

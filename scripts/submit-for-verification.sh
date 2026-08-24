@@ -17,6 +17,13 @@
 #       Consume the token and create the verification record. This is the step
 #       that makes the submission real.
 #
+#   scripts/submit-for-verification.sh --video <URL|FILE.mp4>
+#       Attach the demo video. Only works while the record is at
+#       manual:awaiting-video. A URL is sent as-is (n8n accepts a link, e.g.
+#       Loom); a local file is uploaded to n8n's media store first and both the
+#       returned id and its absolute URL are sent, which is exactly what the
+#       creators portal does.
+#
 # Credentials come from the environment:
 #   N8N_CREATOR_EMAIL, N8N_CREATOR_PASSWORD
 #
@@ -149,5 +156,79 @@ except Exception:
     echo "SUBMITTED."
     ;;
 
-  *) die "unknown option: $1  (try --status, --request, --confirm <TOKEN>)" ;;
+  --video)
+    ARG="${2:-}"
+    [ -n "$ARG" ] || die "usage: $0 --video <URL|FILE.mp4>"
+    login
+
+    STAGE=$(curl -s -H "Authorization: Bearer $JWT" -H 'X-Skip-Cache: 1' \
+      "$API/api/package-cloud-verifications?filters%5BpackageName%5D%5B%24eq%5D=$PACKAGE" \
+      | python3 -c 'import json,sys
+d=json.load(sys.stdin).get("data") or [{}]
+print(d[0].get("pipelineStage",""))' 2>/dev/null)
+    echo "Current stage: ${STAGE:-unknown}"
+    if [ "$STAGE" != "manual:awaiting-video" ]; then
+      echo "n8n only accepts a video at manual:awaiting-video. Not sending." >&2
+      exit 1
+    fi
+
+    MEDIA_ID="null"
+    if [ -f "$ARG" ]; then
+      echo "Uploading $(basename "$ARG") ($(du -h "$ARG" | cut -f1)) to n8n's media store …"
+      UP=$(curl -s -X POST "$API/api/upload" -H "Authorization: Bearer $JWT" -F "files=@$ARG")
+      MEDIA_ID=$(printf '%s' "$UP" | python3 -c 'import json,sys
+try:
+    print(json.load(sys.stdin)[0]["id"])
+except Exception:
+    print("")' 2>/dev/null)
+      URL=$(printf '%s' "$UP" | python3 -c 'import json,sys
+try:
+    print(json.load(sys.stdin)[0]["url"])
+except Exception:
+    print("")' 2>/dev/null)
+      [ -n "$MEDIA_ID" ] || die "upload failed: $(printf '%s' "$UP" | head -c 400)"
+      case "$URL" in
+        http*) ;;
+        *) URL="https://n8niostorageaccount.blob.core.windows.net${URL}" ;;
+      esac
+      echo "Uploaded: id=$MEDIA_ID url=$URL"
+    else
+      URL="$ARG"
+      case "$URL" in
+        http*) ;;
+        *) die "not a file and not a URL: $ARG" ;;
+      esac
+      MEDIA_ID="null"
+    fi
+
+    BODY=$(curl -s -X POST "$API/api/package-cloud-verifications/submit-video" \
+      -H "Authorization: Bearer $JWT" -H 'Content-Type: application/json' -H 'X-Skip-Cache: 1' \
+      -d "$(python3 -c 'import json,sys
+mid = sys.argv[3]
+print(json.dumps({"packageName": sys.argv[1], "recordingUrl": sys.argv[2],
+                  "recordingMediaId": (None if mid in ("", "null") else int(mid))}))' "$PACKAGE" "$URL" "$MEDIA_ID")")
+
+    # Same trap as the token step: this endpoint answers 200 on refusal too, so
+    # the body decides, not the status code.
+    OK=$(printf '%s' "$BODY" | python3 -c '
+import json, sys
+try:
+    print("yes" if json.load(sys.stdin).get("success") is True else "no")
+except Exception:
+    print("no")
+')
+    echo
+    echo "Verification record now:"
+    show_record
+    if [ "$OK" != "yes" ]; then
+      echo
+      echo "VIDEO WAS NOT ACCEPTED. Response:"
+      printf '%s\n' "$BODY" | head -c 600
+      exit 1
+    fi
+    echo
+    echo "VIDEO SUBMITTED."
+    ;;
+
+  *) die "unknown option: $1  (try --status, --request, --confirm <TOKEN>, --video <URL|FILE>)" ;;
 esac
