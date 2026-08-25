@@ -22,10 +22,10 @@
 	],
 	"resources": {
 		"credentialDocumentation": [
-			{ "url": "https://pdfmint-b9tt.onrender.com/docs#authentication" }
+			{ "url": "https://pdf.mintapis.com/docs#authentication" }
 		],
 		"primaryDocumentation": [
-			{ "url": "https://pdfmint-b9tt.onrender.com/docs" }
+			{ "url": "https://pdf.mintapis.com/docs" }
 		]
 	}
 }

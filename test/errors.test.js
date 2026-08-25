@@ -11,7 +11,7 @@ const INVALID_KEY = apiErrorBody(
 	'This API key is not valid, or it has been revoked.',
 	{
 		hint: 'Keys are only shown once and cannot be read back, so if you have lost it, create a new one on your dashboard at /dashboard.',
-		docs: 'https://pdfmint-b9tt.onrender.com/docs#authentication',
+		docs: 'https://pdf.mintapis.com/docs#authentication',
 		request_id: 'c99211da08a1b46d',
 	},
 );

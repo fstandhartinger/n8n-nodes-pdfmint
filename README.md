@@ -5,7 +5,7 @@ Turn HTML, Markdown or a URL into a PDF **and get the file back on the same node
 No template editor. No template IDs to copy out of a web app. No second HTTP Request
 node to fetch the file. No container to self-host.
 
-[PDFMint](https://pdfmint-b9tt.onrender.com) is the API behind it.
+[PDFMint](https://pdf.mintapis.com) is the API behind it.
 The free plan is 10 documents a month and needs no card — enough to wire the node up and see a
 real PDF. Anything recurring needs Starter, at $9 a month for 5,000 documents.
 
@@ -41,7 +41,7 @@ provenance attestation, so `npm audit signatures` can verify which commit built 
 
 ## Credential
 
-1. Create an account at <https://pdfmint-b9tt.onrender.com/signup>. Your API key is shown
+1. Create an account at <https://pdf.mintapis.com/signup>. Your API key is shown
    immediately — no email confirmation, no card.
 2. In n8n, add a **PDFMint API** credential and paste the key. It starts with `pm_live_`.
 3. The credential tests itself against `GET /v1/me`, so you know straight away whether it works.
@@ -190,7 +190,7 @@ The failed item carries the API's own fields, so an IF node can branch on `$json
     "code": "invalid_api_key",
     "message": "This API key is not valid, or it has been revoked.",
     "hint": "…",
-    "docs": "https://pdfmint-b9tt.onrender.com/docs#authentication",
+    "docs": "https://pdf.mintapis.com/docs#authentication",
     "request_id": "51e5390e4107f566",
     "httpCode": "401"
   },
@@ -231,8 +231,8 @@ for a paid plan runs on Stripe, where a VAT ID can optionally be added to the in
 
 ## Links
 
-- Docs: <https://pdfmint-b9tt.onrender.com/docs>
-- Dashboard: <https://pdfmint-b9tt.onrender.com/dashboard>
+- Docs: <https://pdf.mintapis.com/docs>
+- Dashboard: <https://pdf.mintapis.com/dashboard>
 - API source: <https://github.com/fstandhartinger/pdfmint>
 - Issues: <https://github.com/fstandhartinger/n8n-nodes-pdfmint/issues>
 

@@ -11,7 +11,7 @@ import { NodeApiError, NodeOperationError } from 'n8n-workflow';
 
 import { DEFAULT_MARGIN } from './constants';
 
-const DEFAULT_BASE_URL = 'https://pdfmint-b9tt.onrender.com';
+const DEFAULT_BASE_URL = 'https://pdf.mintapis.com';
 
 export interface PdfMintResponse {
 	body: Buffer | IDataObject;

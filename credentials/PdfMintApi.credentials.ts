@@ -12,7 +12,7 @@ export class PdfMintApi implements ICredentialType {
 
 	displayName = 'PDFMint API';
 
-	documentationUrl = 'https://pdfmint-b9tt.onrender.com/docs#authentication';
+	documentationUrl = 'https://pdf.mintapis.com/docs#authentication';
 
 	properties: INodeProperties[] = [
 		{
@@ -24,13 +24,13 @@ export class PdfMintApi implements ICredentialType {
 			required: true,
 			placeholder: 'pm_live_...',
 			description:
-				'Create a free account at https://pdfmint-b9tt.onrender.com/signup and copy the key shown on your dashboard. The free plan is 10 documents a month and needs no card; Starter is $9 a month for 5,000.',
+				'Create a free account at https://pdf.mintapis.com/signup and copy the key shown on your dashboard. The free plan is 10 documents a month and needs no card; Starter is $9 a month for 5,000.',
 		},
 		{
 			displayName: 'Base URL',
 			name: 'baseUrl',
 			type: 'string',
-			default: 'https://pdfmint-b9tt.onrender.com',
+			default: 'https://pdf.mintapis.com',
 			description: 'Only change this if you run your own PDFMint instance',
 		},
 	];
