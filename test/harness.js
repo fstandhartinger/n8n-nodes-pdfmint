@@ -61,10 +61,11 @@ function apiErrorBody(code, message, extra = {}) {
 	};
 }
 
-function createContext({ params = {}, items = [{ json: {} }], continueOnFail = false, http }) {
+function createContext({ params = {}, items = [{ json: {} }], continueOnFail = false, onError, http }) {
 	const calls = [];
+	const node = onError ? { ...testNode, onError } : testNode;
 	const context = {
-		getNode: () => testNode,
+		getNode: () => node,
 		getInputData: () => items,
 		continueOnFail: () => continueOnFail,
 		getCredentials: async () => ({ apiKey: 'pm_live_test', baseUrl: 'https://pdfmint.test' }),

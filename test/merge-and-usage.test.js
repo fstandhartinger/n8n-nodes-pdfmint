@@ -50,6 +50,20 @@ test('merge honours Continue On Fail when the API rejects the request', async ()
 	assert.match(String(items[0].json.errorMessage), /answered 404/);
 });
 
+test('merge marks failures for n8n to route to the error output', async () => {
+	const { context } = createContext({
+		params: mergeParams,
+		items: [pdfItem('a'), { json: { note: 'no binary here' } }],
+		continueOnFail: true,
+		onError: 'continueErrorOutput',
+		http: () => ok(Buffer.from('%PDF-1.7 merged')),
+	});
+
+	const [items] = await new PdfMint().execute.call(context);
+	assert.equal(items.length, 1);
+	assert.match(items[0].error.message, /no binary field called "data"/);
+});
+
 test('merge still throws when Continue On Fail is off', async () => {
 	const { context } = createContext({
 		params: mergeParams,

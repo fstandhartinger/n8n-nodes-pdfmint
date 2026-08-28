@@ -111,7 +111,7 @@ export class PdfMint implements INodeType {
 				return [[{ json: response.body as IDataObject, pairedItem }]];
 			} catch (error) {
 				if (this.continueOnFail()) {
-					return [[{ json: errorItemJson(error), pairedItem }]];
+					return [[errorExecutionData(this, error, 0, pairedItem)]];
 				}
 				throw rethrow.call(this, error, 0);
 			}
@@ -130,7 +130,7 @@ export class PdfMint implements INodeType {
 				throw new NodeOperationError(this.getNode(), `Unknown operation "${operation}"`, { itemIndex: i });
 			} catch (error) {
 				if (this.continueOnFail()) {
-					returnData.push({ json: errorItemJson(error), pairedItem: { item: i } });
+					returnData.push(errorExecutionData(this, error, i, { item: i }));
 					continue;
 				}
 				throw rethrow.call(this, error, i);
@@ -142,12 +142,36 @@ export class PdfMint implements INodeType {
 }
 
 /**
+ * n8n reports both "Continue (using regular output)" and "Continue (using error
+ * output)" through continueOnFail(). In error-output mode its execution engine
+ * looks for item.error and moves that item to the dynamically added last output.
+ * The JSON stays identical in both modes, so existing IF-node workflows keep
+ * their structured API error while native error-output routing also works.
+ */
+function errorExecutionData(
+	context: IExecuteFunctions,
+	error: unknown,
+	itemIndex: number,
+	pairedItem: IPairedItemData | IPairedItemData[],
+): INodeExecutionData {
+	const item: INodeExecutionData = { json: errorItemJson(error), pairedItem };
+	if (context.getNode().onError === 'continueErrorOutput') {
+		item.error = rethrow.call(context, error, itemIndex);
+	}
+	return item;
+}
+
+/**
  * n8n's NodeApiError returns its argument unchanged when handed another
  * NodeApiError, so re-wrapping one would be a no-op. The API's message, hint,
  * docs link and request id are already on the error the request helper built;
  * all that is missing is which item failed.
  */
-function rethrow(this: IExecuteFunctions, error: unknown, itemIndex: number): Error {
+function rethrow(
+	this: IExecuteFunctions,
+	error: unknown,
+	itemIndex: number,
+): NodeApiError | NodeOperationError {
 	if (error instanceof NodeApiError || error instanceof NodeOperationError) {
 		return withItemIndex(error, itemIndex);
 	}

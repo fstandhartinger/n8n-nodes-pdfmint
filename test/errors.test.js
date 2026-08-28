@@ -95,6 +95,20 @@ test('Continue On Fail emits a structured error an IF node can branch on', async
 	assert.doesNotMatch(JSON.stringify(json), /"type":"Buffer"/);
 });
 
+test('Continue using error output marks the item for n8n to route', async () => {
+	const { promise } = run({
+		params: pdfParams,
+		continueOnFail: true,
+		onError: 'continueErrorOutput',
+		http: () => httpFailure(401, INVALID_KEY, { arraybuffer: true }),
+	});
+
+	const [items] = await promise;
+	assert.equal(items.length, 1);
+	assert.match(items[0].error.message, /This API key is not valid, or it has been revoked\./);
+	assert.equal(items[0].json.error.code, 'invalid_api_key');
+});
+
 test('a success still returns the file', async () => {
 	const { promise } = run({
 		params: pdfParams,
