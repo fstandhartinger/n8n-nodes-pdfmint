@@ -8,7 +8,8 @@ node to fetch the file. No container to self-host.
 Two published n8n templates built on this node: [PDF invoices from webhook
 requests](https://n8n.io/workflows/18734-generate-pdf-invoices-from-webhook-requests-with-pdfmint)
 and [Stripe payment receipts with Gmail and
-Drive](https://n8n.io/workflows/18793) — both openable from inside n8n.
+Drive](https://n8n.io/workflows/18793-send-branded-pdf-receipts-for-stripe-payments-with-pdfmint-gmail-and-drive)
+— both openable from inside n8n.
 
 [PDFMint](https://pdf.mintapis.com) is the API behind it.
 The free plan is 10 documents a month and needs no card — enough to wire the node up and see a
