@@ -242,6 +242,15 @@ for a paid plan runs on Stripe, where a VAT ID can optionally be added to the in
 - API source: <https://github.com/fstandhartinger/pdfmint>
 - Issues: <https://github.com/fstandhartinger/n8n-nodes-pdfmint/issues>
 
+Reading email rather than writing PDFs? That is the opposite job and a different node:
+[n8n-nodes-mailmint](https://www.npmjs.com/package/n8n-nodes-mailmint), by the same author —
+an inbound address or an IMAP mailbox in, structured JSON out, with the message's own SPF,
+DKIM and DMARC verdict attached. It is newer than this one and n8n's verification of it is
+still pending, so it needs self-hosted n8n.
+
+Filling Word, Excel or PowerPoint templates from JSON is
+[n8n-nodes-docmint](https://www.npmjs.com/package/n8n-nodes-docmint).
+
 ## Compatibility
 
 Built and tested against n8n 2.35 on Node.js 20 and 22. The package has **zero runtime
