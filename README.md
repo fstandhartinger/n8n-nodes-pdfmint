@@ -5,11 +5,23 @@ Turn HTML, Markdown or a URL into a PDF **and get the file back on the same node
 No template editor. No template IDs to copy out of a web app. No second HTTP Request
 node to fetch the file. No container to self-host.
 
-Two published n8n templates built on this node: [PDF invoices from webhook
-requests](https://n8n.io/workflows/18734-generate-pdf-invoices-from-webhook-requests-with-pdfmint)
-and [Stripe payment receipts with Gmail and
-Drive](https://n8n.io/workflows/18793-send-branded-pdf-receipts-for-stripe-payments-with-pdfmint-gmail-and-drive)
-— both openable from inside n8n.
+Five published n8n templates built on this node — all openable from inside n8n:
+[PDF invoices from webhook
+requests](https://n8n.io/workflows/18734-generate-pdf-invoices-from-webhook-requests-with-pdfmint),
+[Stripe payment receipts with Gmail and
+Drive](https://n8n.io/workflows/18793-send-branded-pdf-receipts-for-stripe-payments-with-pdfmint-gmail-and-drive),
+[Regional sales reports with DocMint and
+Excel](https://n8n.io/workflows/18787-generate-regional-sales-reports-from-crm-exports-with-docmint-and-excel),
+[Weekly web page snapshot
+archive](https://n8n.io/workflows/18865-archive-weekly-web-page-snapshots-into-a-single-pdf-with-pdfmint),
+and [Form submissions to branded PDF
+reports](https://n8n.io/workflows/18866-turn-form-submissions-into-branded-pdf-reports-with-pdfmint).
+More on [pdf.mintapis.com/n8n-templates](https://pdf.mintapis.com/n8n-templates).
+The
+[invoice](https://n8n.io/workflows/18734-generate-pdf-invoices-from-webhook-requests-with-pdfmint)
+template's error handling was revised after community feedback; the corrected
+version is
+[here](https://pdf.mintapis.com/templates/pdf-invoices-from-webhook-fixed.json).
 
 [PDFMint](https://pdf.mintapis.com) is the API behind it.
 The free plan is 10 documents a month and needs no card — enough to wire the node up and see a
@@ -21,14 +33,12 @@ real PDF. Anything recurring needs Starter, at $9 a month for 5,000 documents.
 
 ## Install
 
-> **Self-hosted n8n only, for now.** n8n's rule is that *"unverified community nodes aren't
-> available on n8n cloud and require self-hosting n8n."* This package is
-> [submitted for verification](https://creators.n8n.io/nodes) and is in n8n's automated review,
-> so **n8n Cloud cannot install it yet**. On n8n Cloud, call the HTTP API directly with an
-> HTTP Request node pointed at `POST /v1/pdf` — it returns the PDF bytes, which is the same
-> thing this node hands you.
-
-**Self-hosted, from the n8n UI**
+> **Installs on n8n Cloud and self-hosted.** The node passed n8n's verification and is
+> published as a verified community node (this version, 0.4.4, is what n8n Cloud serves).
+>
+> **n8n Cloud:** open any workflow → add node → search **PDFMint** under Community nodes.
+>
+> **Self-hosted, from the n8n UI**
 
 Settings → Community Nodes → Install → `n8n-nodes-pdfmint`
 
