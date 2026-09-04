@@ -34,7 +34,8 @@ real PDF. Anything recurring needs Starter, at $9 a month for 5,000 documents.
 ## Install
 
 > **Installs on n8n Cloud and self-hosted.** The node passed n8n's verification and is
-> published as a verified community node (this version, 0.4.4, is what n8n Cloud serves).
+> published as a verified community node. n8n serves whichever version it has verified
+> most recently, which can trail the latest npm release by a day or two.
 >
 > **n8n Cloud:** open any workflow → add node → search **PDFMint** under Community nodes.
 >
