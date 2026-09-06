@@ -56,6 +56,22 @@ The package is published from
 [this repository's GitHub Actions workflow](.github/workflows/publish.yml) with an npm
 provenance attestation, so `npm audit signatures` can verify which commit built it.
 
+## See a real PDF before you sign up
+
+There is a demo endpoint that needs no account and no key. Paste this into a terminal
+and you get a real PDF file back:
+
+```bash
+curl -X POST https://pdf.mintapis.com/v1/demo/pdf \
+  -H 'content-type: application/json' \
+  -d '{"html":"<h1>Hello</h1><p>Rendered by PDFMint.</p>"}' \
+  -o hello.pdf
+```
+
+It answers `200 application/pdf`. Open `hello.pdf` — that is the same renderer the node
+uses. It is rate limited per IP and is meant for exactly this: checking that the output
+is what you want before you hand over an email address.
+
 ## Credential
 
 1. Create an account at <https://pdf.mintapis.com/signup>. Your API key is shown
