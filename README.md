@@ -5,23 +5,25 @@ Turn HTML, Markdown or a URL into a PDF **and get the file back on the same node
 No template editor. No template IDs to copy out of a web app. No second HTTP Request
 node to fetch the file. No container to self-host.
 
-Five published n8n templates built on this node — all openable from inside n8n:
+Six published n8n templates built on this node — all openable from inside n8n:
 [PDF invoices from webhook
 requests](https://n8n.io/workflows/18734-generate-pdf-invoices-from-webhook-requests-with-pdfmint),
 [Stripe payment receipts with Gmail and
 Drive](https://n8n.io/workflows/18793-send-branded-pdf-receipts-for-stripe-payments-with-pdfmint-gmail-and-drive),
-[Regional sales reports with DocMint and
-Excel](https://n8n.io/workflows/18787-generate-regional-sales-reports-from-crm-exports-with-docmint-and-excel),
 [Weekly web page snapshot
 archive](https://n8n.io/workflows/18865-archive-weekly-web-page-snapshots-into-a-single-pdf-with-pdfmint),
-and [Form submissions to branded PDF
-reports](https://n8n.io/workflows/18866-turn-form-submissions-into-branded-pdf-reports-with-pdfmint).
+[Form submissions to branded PDF
+reports](https://n8n.io/workflows/18866-turn-form-submissions-into-branded-pdf-reports-with-pdfmint),
+[Overdue invoice statements from
+Xero](https://n8n.io/workflows/18960-send-branded-overdue-invoice-statements-from-xero-with-pdfmint-and-gmail),
+and [Weekly AR ageing reports with Invoice
+Ninja](https://n8n.io/workflows/19112-send-weekly-ar-ageing-reports-with-invoice-ninja-pdfmint-and-gmail).
 More on [pdf.mintapis.com/n8n-templates](https://pdf.mintapis.com/n8n-templates).
-The
-[invoice](https://n8n.io/workflows/18734-generate-pdf-invoices-from-webhook-requests-with-pdfmint)
-template's error handling was revised after community feedback; the corrected
-version is
-[here](https://pdf.mintapis.com/templates/pdf-invoices-from-webhook-fixed.json).
+
+A seventh, [Regional sales reports from CRM
+exports](https://n8n.io/workflows/18787-generate-regional-sales-reports-from-crm-exports-with-docmint-and-excel),
+is listed here for completeness but is built on the sibling node
+`n8n-nodes-docmint`, not on this one.
 
 [PDFMint](https://pdf.mintapis.com) is the API behind it.
 The free plan is 10 documents a month and needs no card — enough to wire the node up and see a
