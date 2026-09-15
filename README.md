@@ -5,7 +5,7 @@ Turn HTML, Markdown or a URL into a PDF **and get the file back on the same node
 No template editor. No template IDs to copy out of a web app. No second HTTP Request
 node to fetch the file. No container to self-host.
 
-Six published n8n templates built on this node — all openable from inside n8n:
+Seven published n8n templates built on this node — all openable from inside n8n:
 [PDF invoices from webhook
 requests](https://n8n.io/workflows/18734-generate-pdf-invoices-from-webhook-requests-with-pdfmint),
 [Stripe payment receipts with Gmail and
@@ -16,11 +16,13 @@ archive](https://n8n.io/workflows/18865-archive-weekly-web-page-snapshots-into-a
 reports](https://n8n.io/workflows/18866-turn-form-submissions-into-branded-pdf-reports-with-pdfmint),
 [Overdue invoice statements from
 Xero](https://n8n.io/workflows/18960-send-branded-overdue-invoice-statements-from-xero-with-pdfmint-and-gmail),
-and [Weekly AR ageing reports with Invoice
-Ninja](https://n8n.io/workflows/19112-send-weekly-ar-ageing-reports-with-invoice-ninja-pdfmint-and-gmail).
+[Weekly AR ageing reports with Invoice
+Ninja](https://n8n.io/workflows/19112-send-weekly-ar-ageing-reports-with-invoice-ninja-pdfmint-and-gmail),
+and [Markdown to branded PDFs with a table of
+contents](https://n8n.io/workflows/19277-convert-markdown-into-branded-pdfs-with-a-table-of-contents-using-pdfmint).
 More on [pdf.mintapis.com/n8n-templates](https://pdf.mintapis.com/n8n-templates).
 
-A seventh, [Regional sales reports from CRM
+One more, [Regional sales reports from CRM
 exports](https://n8n.io/workflows/18787-generate-regional-sales-reports-from-crm-exports-with-docmint-and-excel),
 is listed here for completeness but is built on the sibling node
 `n8n-nodes-docmint`, not on this one.
@@ -274,8 +276,8 @@ for a paid plan runs on Stripe, where a VAT ID can optionally be added to the in
 Reading email rather than writing PDFs? That is the opposite job and a different node:
 [n8n-nodes-mailmint](https://www.npmjs.com/package/n8n-nodes-mailmint), by the same author —
 an inbound address or an IMAP mailbox in, structured JSON out, with the message's own SPF,
-DKIM and DMARC verdict attached. It is newer than this one and n8n's verification of it is
-still pending, so it needs self-hosted n8n.
+DKIM and DMARC verdict attached. It has passed n8n's verification too, so it installs on n8n
+Cloud as well as self-hosted.
 
 Filling Word, Excel or PowerPoint templates from JSON is
 [n8n-nodes-docmint](https://www.npmjs.com/package/n8n-nodes-docmint).
